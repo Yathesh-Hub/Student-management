@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = "";
 
 function getUserId() {
     return localStorage.getItem("userId");
