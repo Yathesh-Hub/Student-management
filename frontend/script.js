@@ -27,33 +27,41 @@ function togglePassword(id, icon) {
   }
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+// ── IMPORTANT FIX (NO LOCALHOST) ─────────────────────────────────────────────
+
+const API = ""; 
+// OR: const API = "http://54.255.237.141:5000";
+
+// ── SIGNUP ───────────────────────────────────────────────────────────────────
 
 async function signup() {
-  const name            = document.getElementById("name").value.trim();
-  const email           = document.getElementById("email").value.trim();
-  const password        = document.getElementById("Password").value;
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("Password").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
 
   if (!name || !email || !password || !confirmPassword) {
     showMessage("signupMsg", "Please fill in all fields.");
     return;
   }
+
   if (password !== confirmPassword) {
     showMessage("signupMsg", "Passwords do not match.");
     return;
   }
+
   if (password.length < 6) {
     showMessage("signupMsg", "Password must be at least 6 characters.");
     return;
   }
 
   try {
-    const res  = await fetch("http://localhost:3000/signup", {
+    const res = await fetch(`${API}/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password })
     });
+
     const data = await res.json();
 
     if (data.message === "User registered successfully") {
@@ -62,34 +70,43 @@ async function signup() {
     } else {
       showMessage("signupMsg", data.message);
     }
+
   } catch (err) {
-    showMessage("signupMsg", "Server error. Is the backend running?");
+    showMessage("signupMsg", "Server error. Backend not reachable.");
   }
 }
+
+// ── LOGIN ────────────────────────────────────────────────────────────────────
 
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const res = await fetch("http://localhost:3000/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email, password })
-  });
+  try {
+    const res = await fetch(`${API}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.message === "Login successful") {
-    localStorage.setItem("loggedIn", email);
-    localStorage.setItem("loggedInName", data.name || email);
-    localStorage.setItem("userId", data.userId);
-    goSlow("index.html");
-  } else {
-    showMessage("msg", data.message);
+    if (data.message === "Login successful") {
+      localStorage.setItem("loggedIn", email);
+      localStorage.setItem("loggedInName", data.name || email);
+      localStorage.setItem("userId", data.userId);
+
+      goSlow("index.html");
+    } else {
+      showMessage("msg", data.message);
+    }
+
+  } catch (err) {
+    showMessage("msg", "Server error. Backend not reachable.");
   }
 }
+
+// ── LOGOUT ───────────────────────────────────────────────────────────────────
 
 function logout() {
   localStorage.removeItem("loggedIn");
@@ -98,14 +115,18 @@ function logout() {
   goSlow("login.html");
 }
 
-// ── Dashboard guard ───────────────────────────────────────────────────────────
+// ── AUTH GUARD ───────────────────────────────────────────────────────────────
 
 function requireAuth() {
   if (!localStorage.getItem("loggedIn")) {
     window.location.href = "login.html";
     return;
   }
+
   const name = localStorage.getItem("loggedInName");
-  const el   = document.getElementById("welcomeUser");
-  if (el && name) el.innerText = "Hi, " + name + " 👋";
+  const el = document.getElementById("welcomeUser");
+
+  if (el && name) {
+    el.innerText = "Hi, " + name + " 👋";
+  }
 }
