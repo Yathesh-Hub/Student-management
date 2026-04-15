@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     stage('Clone') {
-    steps {
-        git branch: 'main', url: 'https://github.com/Yathesh-Hub/Student-management.git'
+        steps {
+            git branch: 'main', url: 'https://github.com/Yathesh-Hub/Student-management.git'
+            }
         }
-    }
 
         stage('Build Docker Image') {
             steps {
