@@ -29,7 +29,7 @@ function togglePassword(id, icon) {
 
 // ── IMPORTANT FIX (NO LOCALHOST) ─────────────────────────────────────────────
 
-const API = "/api"; 
+const API = ""; 
 // OR: const API = "http://54.255.237.141:5000";
 
 // ── SIGNUP ───────────────────────────────────────────────────────────────────
