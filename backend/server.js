@@ -242,7 +242,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-    res.send("Server is running 🚀");
+    res.sendFile(path.join(__dirname, "../frontend/login.html"));
 });
 
 // ── SERVER ───────────────────────────────────────
