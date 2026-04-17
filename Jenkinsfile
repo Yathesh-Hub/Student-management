@@ -1,54 +1,43 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "student-app"
-        CONTAINER_NAME = "student-app"
-    }
-
     stages {
 
-        stage('Checkout Code') {
+        stage('Run MongoDB') {
             steps {
-                checkout scm
+                sh '''
+                docker stop mongodb || true
+                docker rm mongodb || true
+                docker run -d -p 27017:27017 --name mongodb mongo:6
+                '''
             }
         }
 
-        stage('Stop Existing Containers') {
+        stage('Install Node Modules') {
             steps {
-                sh '''
-                docker stop student-app || true
-                docker rm student-app || true
-                '''
+                dir('backend') {
+                    sh 'npm install'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                docker build -t student-app .
-                '''
+                sh 'docker build -t student-app .'
             }
         }
 
-        stage('Run Application') {
+        stage('Run App') {
             steps {
                 sh '''
+                docker stop student-app || true
+                docker rm student-app || true
+
                 docker run -d -p 5000:5000 \
-                --name student-app \
-                -e MONGODB_URI="mongodb://mongodb:27017/student_db" \
-                student-app
+                -e MONGODB_URI="mongodb://172.17.0.1:27017/student_db" \
+                --name student-app student-app
                 '''
             }
-        }
-    }
-
-    post {
-        success {
-            echo "Build and Deployment Successful 🚀"
-        }
-        failure {
-            echo "Build Failed ❌ Check logs"
         }
     }
 }
