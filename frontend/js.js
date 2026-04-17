@@ -1,4 +1,4 @@
-const API = "http://ec2-18-139-161-32.ap-southeast-1.compute.amazonaws.com:5000";
+const API = "";
 
 function getUserId() {
     return localStorage.getItem("userId");
